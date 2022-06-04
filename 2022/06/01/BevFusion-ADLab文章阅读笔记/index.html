@@ -473,7 +473,22 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                
+                <h1 id="BEVFusion-Multi-Task-Multi-Sensor-Fusion-with-Unified-Bird’s-Eye-View-Representation"><a href="#BEVFusion-Multi-Task-Multi-Sensor-Fusion-with-Unified-Bird’s-Eye-View-Representation" class="headerlink" title="BEVFusion: Multi-Task Multi-Sensor Fusion with Unified Bird’s-Eye View Representation"></a>BEVFusion: Multi-Task Multi-Sensor Fusion with Unified Bird’s-Eye View Representation</h1><h2 id="文章目的"><a href="#文章目的" class="headerlink" title="文章目的"></a>文章目的</h2><p>提出一种camera-lidar融合的多任务联合训练网络框架</p>
+<h2 id="文章概意"><a href="#文章概意" class="headerlink" title="文章概意"></a>文章概意</h2><p>现有点云和RGB融合的方式主要有to-camera和to-LiDAR两种，前者由于二维平面上远距离点和近距离点出现在同一领域中，容易导致几何信息损失（其实这个立意点存疑，因为有很多range view的方法效果也很好），后者由于RGB和点云稠密度严重不平衡会导致RGB的语义信息损失（那么疑问来了，通过RGB的特征提取，难道稀疏点不可以具有领域的局部语义特征么）。基于以上两种融合方式的缺点，文章提出了基于BEV视角的融合方式。</p>
+<p>具体网络结构如下：</p>
+  
+
+<p>首先，对RGB和point两支路用不同的backbone来处理得到bev特征，然后进行concat+卷积，最后用不同任务的head来去估计不同任务中的量。</p>
+<p>lidar的backbone采用了voxelnet的方式来处理。</p>
+<p>对于RGB的backbone，需要做2D-3D的反投影+体素化+体素特征提取，效率十分低下（光体素化+体素特征提取就占用了500ms，整个model剩余的部分占用总时间才100ms左右），文章针对体素化和体素特征提取做出了一定的改动来提升效率。首先针对体素化过程，由于反投影之前得到的其实不是HxW的深度图，而是HxWxD的一个tensor，即每个RGB像素点都会被预测多个depth下的概率，从而反投影过程会得到一系列射线上的3D点，这些点的特征除了xyz的空间特征外还会有概率这种特征，因此，其实空间点和grid的索引关系是固定的，不随场景内容而改变的，这个可以precomputation，从而减少了线上预测的时间，然后针对体素特征提取过程，文章是用了多线程的方式来并行处理加快了该过程。</p>
+<p>效率提高效果如下所示：</p>
+  
+
+<h2 id="文章效果"><a href="#文章效果" class="headerlink" title="文章效果"></a>文章效果</h2>  
+
+
+<h2 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h2><p>可以看出，对于3D目标检测任务还是无法实现real-time。</p>
+
                 
             </div>
             <hr/>
@@ -499,7 +514,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://example.com/2022/06/01/BevFusion%E6%96%87%E7%AB%A0%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">http://example.com/2022/06/01/BevFusion%E6%96%87%E7%AB%A0%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/</a>
+                    <a href="http://example.com/2022/06/01/BevFusion-ADLab%E6%96%87%E7%AB%A0%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">http://example.com/2022/06/01/BevFusion-ADLab%E6%96%87%E7%AB%A0%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/</a>
                 </span>
             </div>
             <div class="reprint__notice">

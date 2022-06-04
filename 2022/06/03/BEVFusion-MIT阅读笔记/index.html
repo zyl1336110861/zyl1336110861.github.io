@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="Part2_投影几何、变换和估计, Hexo">
+    <meta name="keywords" content="BEVFusion_MIT阅读笔记, Hexo">
     <meta name="description" content="">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>Part2_投影几何、变换和估计 | Hexo</title>
+    <title>BEVFusion_MIT阅读笔记 | Hexo</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -310,12 +310,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/13.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/6.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">Part2_投影几何、变换和估计</h1>
+                    <h1 class="description center-align post-title">BEVFusion_MIT阅读笔记</h1>
                 </div>
             </div>
         </div>
@@ -429,9 +429,13 @@
             <div class="row tag-cate">
                 <div class="col s7">
                     
-                          <div class="article-tag">
-                            <span class="chip bg-color">无标签</span>
-                          </div>
+                    <div class="article-tag">
+                        
+                            <a href="/tags/3D-Detection/">
+                                <span class="chip bg-color">3D Detection</span>
+                            </a>
+                        
+                    </div>
                     
                 </div>
                 <div class="col s5 right-align">
@@ -439,8 +443,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/Multiple-View-Geometry/" class="post-category">
-                                Multiple View Geometry
+                            <a href="/categories/3D-Detection/" class="post-category">
+                                3D Detection
                             </a>
                         
                     </div>
@@ -452,7 +456,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2022-06-01
+                    2022-06-03
                 </div>
                 
 
@@ -473,7 +477,23 @@
 
         <div class="card-content article-card-content">
             <div id="articleContent">
-                
+                <h1 id="BEVFusion-Multi-Task-Multi-Sensor-Fusion-with-Unified-Bird’s-Eye-View-Representation"><a href="#BEVFusion-Multi-Task-Multi-Sensor-Fusion-with-Unified-Bird’s-Eye-View-Representation" class="headerlink" title="BEVFusion: Multi-Task Multi-Sensor Fusion with Unified Bird’s-Eye View Representation"></a>BEVFusion: Multi-Task Multi-Sensor Fusion with Unified Bird’s-Eye View Representation</h1><h2 id="文章目的"><a href="#文章目的" class="headerlink" title="文章目的"></a>文章目的</h2><p>提出一种camera-lidar融合的多任务联合训练网络框架</p>
+<h2 id="文章概意"><a href="#文章概意" class="headerlink" title="文章概意"></a>文章概意</h2><p>现有点云和RGB融合的方式主要有to-camera和to-LiDAR两种，前者由于二维平面上远距离点和近距离点出现在同一领域中，容易导致几何信息损失（其实这个立意点存疑，因为有很多range view的方法效果也很好），后者由于RGB和点云稠密度严重不平衡会导致RGB的语义信息损失（那么疑问来了，通过RGB的特征提取，难道稀疏点不可以具有领域的局部语义特征么）。两种融合方式的直观示意图如下所示：</p>
+<img src="2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/2022-06-04-15-47-24.png" class="">
+<p>基于以上两种融合方式的缺点，文章提出了基于BEV视角的融合方式。</p>
+<p>具体网络结构如下：</p>
+<img src="2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/2022-06-04-15-48-21.png" class="">
+
+<p>首先，对RGB和point两支路用不同的backbone来处理得到bev特征，然后进行concat+卷积，最后用不同任务的head来去估计不同任务中的量。</p>
+<p>1）lidar的backbone采用了voxelnet的方式来处理。</p>
+<p>2）对于RGB的backbone，需要做2D-3D的反投影+体素化+体素特征提取，效率十分低下（光体素化+体素特征提取就占用了500ms，整个model剩余的部分占用总时间才100ms左右），文章针对体素化和体素特征提取做出了一定的改动来提升效率。首先针对体素化过程，由于反投影之前得到的其实不是HxW的深度图，而是HxWxD的一个tensor，即每个RGB像素点都会被预测多个depth下的概率，从而反投影过程会得到一系列射线上的3D点，这些点的特征除了xyz的空间特征外还会有概率这种特征，因此，其实空间点和grid的索引关系是固定的，不随场景内容而改变的，这个可以precomputation，从而减少了线上预测的时间，然后针对体素特征提取过程，文章是用了多线程的方式来并行处理加快了该过程。<br>效率提高效果如下所示：</p>
+<img src="2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/2022-06-04-15-49-01.png" class="">
+<h2 id="文章效果"><a href="#文章效果" class="headerlink" title="文章效果"></a>文章效果</h2><img src="2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/2022-06-04-15-49-29.png" class="">
+
+
+
+<h2 id="个人理解"><a href="#个人理解" class="headerlink" title="个人理解"></a>个人理解</h2><p>可以看出，对于3D目标检测任务还是无法实现real-time。</p>
+
                 
             </div>
             <hr/>
@@ -499,7 +519,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="http://example.com/2022/06/01/Part2-%E6%8A%95%E5%BD%B1%E5%87%A0%E4%BD%95%E3%80%81%E5%8F%98%E6%8D%A2%E5%92%8C%E4%BC%B0%E8%AE%A1/">http://example.com/2022/06/01/Part2-%E6%8A%95%E5%BD%B1%E5%87%A0%E4%BD%95%E3%80%81%E5%8F%98%E6%8D%A2%E5%92%8C%E4%BC%B0%E8%AE%A1/</a>
+                    <a href="http://example.com/2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">http://example.com/2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -536,7 +556,11 @@
                 <div class="post-meta__tag-list" style="display: inline-block;">
                     
                         <div class="article-tag">
-                            <span class="chip bg-color">无标签</span>
+                            
+                                <a href="/tags/3D-Detection/">
+                                    <span class="chip bg-color">3D Detection</span>
+                                </a>
+                            
                         </div>
                     
                 </div>
@@ -704,17 +728,18 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2022/06/01/BevFusion-ADLab%E6%96%87%E7%AB%A0%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">
+                <a href="/2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="BevFusion文章阅读笔记">
+                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="BEVFusion_MIT阅读笔记">
                         
-                        <span class="card-title">BevFusion文章阅读笔记</span>
+                        <span class="card-title">BEVFusion_MIT阅读笔记</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -724,9 +749,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2022-06-01
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-06-03
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -739,6 +764,15 @@
                         </span>
                     </div>
                 </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/3D-Detection/">
+                        <span class="chip bg-color">3D Detection</span>
+                    </a>
+                    
+                </div>
                 
             </div>
         </div>
@@ -749,13 +783,13 @@
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2022/06/01/opencv%E4%B8%AD%E7%9A%84sgbm%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90/">
+                <a href="/2022/06/01/sgbm%E7%9A%84SSE%E5%8A%A0%E9%80%9F/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/22.jpg" class="responsive-img" alt="opencv中的sgbm代码解析">
+                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="sgbm的SSE加速">
                         
-                        <span class="card-title">opencv中的sgbm代码解析</span>
+                        <span class="card-title">sgbm的SSE加速</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -772,21 +806,13 @@
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/stereo-matching/" class="post-category">
-                                    stereo_matching
+                            <a href="/categories/SIMD/" class="post-category">
+                                    SIMD
                                 </a>
                             
                             
                         </span>
                     </div>
-                </div>
-                
-                <div class="card-action article-tags">
-                    
-                    <a href="/tags/stereo-matching/">
-                        <span class="chip bg-color">stereo_matching</span>
-                    </a>
-                    
                 </div>
                 
             </div>
