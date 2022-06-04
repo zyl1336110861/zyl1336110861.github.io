@@ -479,16 +479,16 @@
             <div id="articleContent">
                 <h1 id="BEVFusion-Multi-Task-Multi-Sensor-Fusion-with-Unified-Bird’s-Eye-View-Representation"><a href="#BEVFusion-Multi-Task-Multi-Sensor-Fusion-with-Unified-Bird’s-Eye-View-Representation" class="headerlink" title="BEVFusion: Multi-Task Multi-Sensor Fusion with Unified Bird’s-Eye View Representation"></a>BEVFusion: Multi-Task Multi-Sensor Fusion with Unified Bird’s-Eye View Representation</h1><h2 id="文章目的"><a href="#文章目的" class="headerlink" title="文章目的"></a>文章目的</h2><p>提出一种camera-lidar融合的多任务联合训练网络框架</p>
 <h2 id="文章概意"><a href="#文章概意" class="headerlink" title="文章概意"></a>文章概意</h2><p>现有点云和RGB融合的方式主要有to-camera和to-LiDAR两种，前者由于二维平面上远距离点和近距离点出现在同一领域中，容易导致几何信息损失（其实这个立意点存疑，因为有很多range view的方法效果也很好），后者由于RGB和点云稠密度严重不平衡会导致RGB的语义信息损失（那么疑问来了，通过RGB的特征提取，难道稀疏点不可以具有领域的局部语义特征么）。两种融合方式的直观示意图如下所示：</p>
-<img src="2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/2022-06-04-15-47-24.png" class="">
+<img src="/2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/2022-06-04-15-47-24.png" class>
 <p>基于以上两种融合方式的缺点，文章提出了基于BEV视角的融合方式。</p>
 <p>具体网络结构如下：</p>
-<img src="2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/2022-06-04-15-48-21.png" class="">
+<img src="/2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/2022-06-04-15-48-21.png" class>
 
 <p>首先，对RGB和point两支路用不同的backbone来处理得到bev特征，然后进行concat+卷积，最后用不同任务的head来去估计不同任务中的量。</p>
 <p>1）lidar的backbone采用了voxelnet的方式来处理。</p>
 <p>2）对于RGB的backbone，需要做2D-3D的反投影+体素化+体素特征提取，效率十分低下（光体素化+体素特征提取就占用了500ms，整个model剩余的部分占用总时间才100ms左右），文章针对体素化和体素特征提取做出了一定的改动来提升效率。首先针对体素化过程，由于反投影之前得到的其实不是HxW的深度图，而是HxWxD的一个tensor，即每个RGB像素点都会被预测多个depth下的概率，从而反投影过程会得到一系列射线上的3D点，这些点的特征除了xyz的空间特征外还会有概率这种特征，因此，其实空间点和grid的索引关系是固定的，不随场景内容而改变的，这个可以precomputation，从而减少了线上预测的时间，然后针对体素特征提取过程，文章是用了多线程的方式来并行处理加快了该过程。<br>效率提高效果如下所示：</p>
-<img src="2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/2022-06-04-15-49-01.png" class="">
-<h2 id="文章效果"><a href="#文章效果" class="headerlink" title="文章效果"></a>文章效果</h2><img src="2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/2022-06-04-15-49-29.png" class="">
+<img src="/2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/2022-06-04-15-49-01.png" class>
+<h2 id="文章效果"><a href="#文章效果" class="headerlink" title="文章效果"></a>文章效果</h2><img src="/2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/2022-06-04-15-49-29.png" class>
 
 
 
@@ -728,18 +728,17 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="far fa-dot-circle"></i>&nbsp;本篇
-            </div>
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2022/06/03/BEVFusion-MIT%E9%98%85%E8%AF%BB%E7%AC%94%E8%AE%B0/">
+                <a href="/2022/06/04/test/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/6.jpg" class="responsive-img" alt="BEVFusion_MIT阅读笔记">
+                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="test">
                         
-                        <span class="card-title">BEVFusion_MIT阅读笔记</span>
+                        <span class="card-title">test</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
@@ -749,27 +748,26 @@
                         
                     </div>
                     <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2022-06-03
-                            </span>
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-06-04
+                        </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/3D-Detection/" class="post-category">
-                                    3D Detection
+                            <a href="/categories/others/" class="post-category">
+                                    others
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/3D-Detection/">
-                        <span class="chip bg-color">3D Detection</span>
+                    <a href="/tags/others/">
+                        <span class="chip bg-color">others</span>
                     </a>
                     
                 </div>
